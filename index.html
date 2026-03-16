@@ -3,9 +3,601 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Fair Price Shop - Time Management System</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-    welcome
+<!-- Login Screen -->
+<div id="loginScreen" class="login-screen active">
+    <div class="login-container">
+
+        <div class="login-header">
+            <div class="logo-circle">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRWXyyLsjaBHL3MqtyjYfb-vZ1RvIfY-y7TOQ&s" alt="logo">
+            </div>
+            <h1>Fair Price Shop</h1>
+            <h2>Management System</h2>
+        </div>
+
+        <!-- Toggle Buttons -->
+        <div style="display:flex; gap:10px; margin-bottom:20px;">
+            <button class="btn" onclick="showAdminLogin()">Admin</button>
+            <button class="btn" onclick="showUserLogin()">Customer</button>
+        </div>
+
+        <!-- ADMIN LOGIN -->
+        <div id="adminLoginBox" class="login-role">
+            <h4>Admin Login</h4>
+            <div class="form-group-login">
+                <input type="text" id="adminUsername" placeholder="Username" value="admin">
+                <input type="password" id="adminPassword" placeholder="Password" value="admin123">
+                <button class="btn" onclick="adminLogin()">Login as Admin</button>
+            </div>
+        </div>
+
+        <!-- CUSTOMER LOGIN -->
+        <div id="userLoginBox" class="login-role" style="display:none;">
+            <h4>Customer Login</h4>
+            <div class="form-group-login">
+
+                <input type="text" id="custSmartCard" placeholder="Smart Card Number">
+
+                <div style="display:flex; gap:10px;">
+                    <input type="text" id="custOtp" placeholder="Enter OTP">
+                    <button class="btn" onclick="sendOTP()">Send OTP</button>
+                </div>
+
+                <button class="btn" onclick="verifyOTP()">Verify & Login</button>
+            </div>
+        </div>
+
+        <div class="login-footer">
+            <p>&copy; 2026 Tamil Nadu Fair Price Shop</p>
+        </div>
+
+    </div>
+</div>
+    <!-- Main Application (Hidden until login) -->
+    <div id="mainApp" style="display: none;">
+        <!-- Header with Tamil Nadu Logo and Branding -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <div class="tn-logo">
+                        <div class="logo-circle">TN</div>
+                    </div>
+                    <div class="header-text">
+                        <h1>தமிழ்நாடு நியாய விலை கடை</h1>
+                        <h2>Tamil Nadu Fair Price Shop - Time Management System</h2>
+                    </div>
+                </div>
+                <div class="user-info">
+                    <span id="currentDate"></span>
+                    <span id="userDisplay" class="user-display"></span>
+                    <button class="btn-logout" onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation - Admin Only -->
+        <nav class="navbar" id="adminNav" style="display: none;">
+            <button class="nav-btn active" onclick="showSection('adminDashboard')">Dashboard</button>
+            <button class="nav-btn" onclick="showSection('schedule')">Staff Schedule</button>
+            <button class="nav-btn" onclick="showSection('attendance')">Attendance</button>
+            <button class="nav-btn" onclick="showSection('inventory')">Inventory Time</button>
+            <button class="nav-btn" onclick="showSection('reports')">Reports</button>
+            <button class="nav-btn" onclick="showSection('adminSettings')">⚙️ Settings</button>
+            <button class="nav-btn" onclick="showSection('userManagement')">👥 Users</button>
+            <button class="nav-btn" onclick="showSection('revenueReport')">💰 Revenue</button>
+            <button class="nav-btn" onclick="showSection('staffPerformance')">📊 Performance</button>
+            <button class="nav-btn" onclick="showSection('systemConfig')">🔧 System</button>
+        </nav>
+
+        <!-- Navigation - User Only -->
+        <nav class="navbar" id="userNav" style="display: none;">
+            <button class="nav-btn active" onclick="showSection('userDashboard')">My Dashboard</button>
+            <button class="nav-btn" onclick="showSection('availableSlots')">Available Slots</button>
+            <button class="nav-btn" onclick="showSection('myBookings')">My Bookings</button>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+        <!-- Admin Dashboard Section -->
+        <section id="adminDashboard" class="section active">
+            <h2>Admin Dashboard</h2>
+            <div class="dashboard-grid">
+                <div class="card">
+                    <h3>Shop Status</h3>
+                    <div class="status-box">
+                        <p>Opening Time: <strong id="shopOpen">09:00 AM</strong></p>
+                        <p>Closing Time: <strong id="shopClose">05:00 PM</strong></p>
+                        <p>Status: <strong id="shopStatus" class="status-open">OPEN</strong></p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Today's Staff</h3>
+                    <div id="todayStaff" class="staff-list">
+                        <p>Loading...</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Attendance Today</h3>
+                    <div class="attendance-summary">
+                        <p>Present: <strong id="presentCount">0</strong></p>
+                        <p>Absent: <strong id="absentCount">0</strong></p>
+                        <p>On Leave: <strong id="leaveCount">0</strong></p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Inventory Status</h3>
+                    <div id="inventoryStatus" class="inventory-list">
+                        <p>Loading...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- User Dashboard Section -->
+        <section id="userDashboard" class="section">
+            <h2>Welcome to Fair Price Shop</h2>
+            <div class="dashboard-grid">
+                <div class="card">
+                    <h3>Shop Status</h3>
+                    <div class="status-box">
+                        <p>Opening Time: <strong>09:00 AM</strong></p>
+                        <p>Closing Time: <strong>05:00 PM</strong></p>
+                        <p>Status: <strong id="userShopStatus" class="status-open">OPEN</strong></p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Your Information</h3>
+                    <div class="status-box">
+                        <p>Name: <strong id="userCustName">-</strong></p>
+                        <p>Phone: <strong id="userCustPhone">-</strong></p>
+                        <p>Bookings: <strong id="userBookingCount">0</strong></p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Next Purchase Slot</h3>
+                    <div class="status-box">
+                        <p id="nextSlotInfo">No upcoming bookings. <a href="#" onclick="showSection('availableSlots'); return false;">Book now!</a></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Available Slots Section (User) -->
+        <section id="availableSlots" class="section">
+            <h2>Available Purchase Slots</h2>
+            <p class="info-text">Browse available slots and book your preferred time to purchase items from the Fair Price Shop.</p>
+            
+            <div class="filter-group">
+                <input type="date" id="userFilterDate">
+                <button class="btn btn-primary" onclick="filterSlots()">Filter by Date</button>
+                <button class="btn btn-secondary" onclick="clearDateFilter()">Clear Filter</button>
+            </div>
+
+            <div class="slots-grid" id="availableSlotsGrid">
+                <p class="no-data">No slots available</p>
+            </div>
+        </section>
+
+        <!-- My Bookings Section (User) -->
+        <section id="myBookings" class="section">
+            <h2>My Purchase Bookings</h2>
+            <p class="info-text">View and manage your scheduled purchase slots.</p>
+            
+            <table class="my-bookings-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Time Slot</th>
+                        <th>Items</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="myBookingsTable">
+                    <tr>
+                        <td colspan="5" class="no-data">No bookings yet</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Staff Schedule Section -->
+        <section id="schedule" class="section">
+            <h2>Staff Shift Scheduling</h2>
+            <div class="form-group">
+                <h3>Add New Schedule</h3>
+                <div class="form-row">
+                    <input type="text" id="empName" placeholder="Employee Name">
+                    <input type="text" id="empId" placeholder="Employee ID">
+                </div>
+                <div class="form-row">
+                    <input type="date" id="schedDate">
+                    <select id="shiftType">
+                        <option>Morning Shift (9 AM - 1 PM)</option>
+                        <option>Afternoon Shift (1 PM - 5 PM)</option>
+                        <option>Full Day (9 AM - 5 PM)</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" onclick="addSchedule()">Add Schedule</button>
+            </div>
+
+            <h3>Weekly Schedule</h3>
+            <table class="schedule-table">
+                <thead>
+                    <tr>
+                        <th>Employee ID</th>
+                        <th>Employee Name</th>
+                        <th>Date</th>
+                        <th>Shift</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="scheduleTable">
+                    <tr>
+                        <td colspan="5" class="no-data">No schedules added yet</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Attendance Section -->
+        <section id="attendance" class="section">
+            <h2>Attendance Tracking</h2>
+            <div class="form-group">
+                <h3>Mark Attendance</h3>
+                <div class="form-row">
+                    <input type="text" id="attempId" placeholder="Employee ID">
+                    <input type="date" id="attDate">
+                    <select id="attStatus">
+                        <option value="present">Present</option>
+                        <option value="absent">Absent</option>
+                        <option value="leave">On Leave</option>
+                        <option value="half">Half Day</option>
+                    </select>
+                    <input type="text" id="attNotes" placeholder="Notes (optional)">
+                </div>
+                <button class="btn btn-primary" onclick="markAttendance()">Record Attendance</button>
+            </div>
+
+            <h3>Attendance Records</h3>
+            <table class="attendance-table">
+                <thead>
+                    <tr>
+                        <th>Employee ID</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Notes</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="attendanceTable">
+                    <tr>
+                        <td colspan="5" class="no-data">No attendance records yet</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Inventory Time Management Section -->
+        <section id="inventory" class="section">
+            <h2>Inventory Time Management</h2>
+            <div class="form-group">
+                <h3>Schedule Inventory Check</h3>
+                <div class="form-row">
+                    <input type="text" id="itemName" placeholder="Item Name">
+                    <input type="number" id="itemQuantity" placeholder="Quantity">
+                </div>
+                <div class="form-row">
+                    <input type="date" id="checkDate">
+                    <input type="time" id="checkTime">
+                    <select id="checkType">
+                        <option value="morning">Morning Check (9 AM)</option>
+                        <option value="afternoon">Afternoon Check (1 PM)</option>
+                        <option value="closing">Closing Check (5 PM)</option>
+                    </select>
+                </div>
+                <textarea id="invNotes" placeholder="Notes" rows="3"></textarea>
+                <button class="btn btn-primary" onclick="addInventoryCheck()">Schedule Check</button>
+            </div>
+
+            <h3>Inventory Schedule</h3>
+            <table class="inventory-table">
+                <thead>
+                    <tr>
+                        <th>Item Name</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Type</th>
+                        <th>Quantity</th>
+                        <th>Notes</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="inventoryTable">
+                    <tr>
+                        <td colspan="7" class="no-data">No inventory checks scheduled</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Reports Section -->
+        <section id="reports" class="section">
+            <h2>Reports & Analytics</h2>
+            <div class="report-controls">
+                <input type="date" id="reportStartDate">
+                <span> to </span>
+                <input type="date" id="reportEndDate">
+                <button class="btn btn-primary" onclick="generateReport()">Generate Report</button>
+            </div>
+
+            <div class="report-grid">
+                <div class="report-card">
+                    <h3>Attendance Report</h3>
+                    <div id="attendanceReport" class="report-content">
+                        <p>Total Days: <strong>0</strong></p>
+                        <p>Total Present: <strong>0</strong></p>
+                        <p>Total Absent: <strong>0</strong></p>
+                        <p>Attendance %: <strong>0%</strong></p>
+                    </div>
+                </div>
+
+                <div class="report-card">
+                    <h3>Schedule Summary</h3>
+                    <div id="scheduleReport" class="report-content">
+                        <p>Total Schedules: <strong>0</strong></p>
+                        <p>Full Day Shifts: <strong>0</strong></p>
+                        <p>Half Day Shifts: <strong>0</strong></p>
+                    </div>
+                </div>
+
+                <div class="report-card">
+                    <h3>Inventory Report</h3>
+                    <div id="inventoryReport" class="report-content">
+                        <p>Total Checks: <strong>0</strong></p>
+                        <p>Items Tracked: <strong>0</strong></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="export-section">
+                <button class="btn btn-secondary" onclick="exportPDF()">Export as PDF</button>
+                <button class="btn btn-secondary" onclick="exportExcel()">Export as Excel</button>
+            </div>
+        </section>
+
+        <!-- Admin Settings Section (Admin Only) -->
+        <section id="adminSettings" class="section admin-only">
+            <h2>⚙️ Admin Settings</h2>
+            <div class="admin-settings-grid">
+                <div class="settings-card">
+                    <h3>Shop Configuration</h3>
+                    <div class="settings-form">
+                        <label>Shop Name:</label>
+                        <input type="text" id="shopName" placeholder="Fair Price Shop Name" value="Tamil Nadu Fair Price Shop">
+                        
+                        <label>Shop Location:</label>
+                        <input type="text" id="shopLocation" placeholder="Address">
+                        
+                        <label>Opening Time:</label>
+                        <input type="time" id="settingOpenTime" value="09:00">
+                        
+                        <label>Closing Time:</label>
+                        <input type="time" id="settingCloseTime" value="17:00">
+                        
+                        <button class="btn btn-primary" onclick="saveShopSettings()">Save Settings</button>
+                    </div>
+                </div>
+
+                <div class="settings-card">
+                    <h3>Holiday Management</h3>
+                    <div class="settings-form">
+                        <label>Add Holiday Date:</label>
+                        <input type="date" id="holidayDate">
+                        <input type="text" id="holidayName" placeholder="Holiday Name (e.g., Deepavali)">
+                        <button class="btn btn-primary" onclick="addHoliday()">Add Holiday</button>
+                        <hr>
+                        <div id="holidayList" class="holiday-list">
+                            <p class="no-data">No holidays added</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-card">
+                    <h3>Broadcast Message</h3>
+                    <div class="settings-form">
+                        <textarea id="broadcastMsg" placeholder="Message for all users/customers" rows="4"></textarea>
+                        <button class="btn btn-primary" onclick="sendBroadcast()">Send Message</button>
+                    </div>
+                </div>
+
+                <div class="settings-card">
+                    <h3>🛒 Manage Purchase Slots</h3>
+                    <div class="settings-form">
+                        <label>Create New Purchase Slot for Customers:</label>
+                        
+                        <label>Date:</label>
+                        <input type="date" id="adminPurchaseDate">
+                        
+                        <label>Time Slot:</label>
+                        <select id="adminTimeSlot">
+                            <option value="morning">Morning Slot (9 AM - 11 AM)</option>
+                            <option value="late-morning">Late Morning (11 AM - 1 PM)</option>
+                            <option value="afternoon">Afternoon Slot (1 PM - 3 PM)</option>
+                            <option value="late-afternoon">Late Afternoon (3 PM - 5 PM)</option>
+                        </select>
+                        
+                        <label>Available Items:</label>
+                        <select id="adminItemSelect" multiple style="height: 100px;">
+                            <option value="Rice (1kg)">Rice (1kg)</option>
+                            <option value="Wheat (1kg)">Wheat (1kg)</option>
+                            <option value="Sugar (1kg)">Sugar (1kg)</option>
+                            <option value="Oil (1L)">Oil (1L)</option>
+                            <option value="Dal/Lentils (1kg)">Dal/Lentils (1kg)</option>
+                            <option value="Salt (1kg)">Salt (1kg)</option>
+                            <option value="Flour (1kg)">Flour (1kg)</option>
+                            <option value="Kerosene (1L)">Kerosene (1L)</option>
+                        </select>
+                        
+                        <label>Notes (Optional):</label>
+                        <textarea id="adminPurchaseNotes" placeholder="Special notes for this slot" rows="2"></textarea>
+                        
+                        <button class="btn btn-primary" onclick="adminAddPurchaseSlot()">Create Slot</button>
+                        
+                        <hr style="margin: 15px 0;">
+                        
+                        <label style="font-weight: 700; margin-bottom: 10px;">Active Purchase Slots</label>
+                        <div id="adminPurchaseSlotsList" class="admin-slots-list">
+                            <p class="no-data">No slots created</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- User Management Section (Admin Only) -->
+        <section id="userManagement" class="section admin-only">
+            <h2>👥 User Management</h2>
+            <p class="info-text">Manage registered users and customers of the Fair Price Shop.</p>
+            
+            <div class="management-controls">
+                <input type="text" id="searchUser" placeholder="Search by Phone/ID/Name">
+                <button class="btn btn-secondary" onclick="searchUsers()">Search</button>
+            </div>
+
+            <table class="user-management-table">
+                <thead>
+                    <tr>
+                        <th>User ID</th>
+                        <th>Total Bookings</th>
+                        <th>Last Booking</th>
+                        <th>Total Purchases</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="userManagementTable">
+                    <tr>
+                        <td colspan="6" class="no-data">No users registered yet</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Revenue Report Section (Admin Only) -->
+        <section id="revenueReport" class="section admin-only">
+            <h2>💰 Revenue & Sales Report</h2>
+            
+            <div class="report-controls">
+                <input type="date" id="revStartDate">
+                <span> to </span>
+                <input type="date" id="revEndDate">
+                <button class="btn btn-primary" onclick="generateRevenueReport()">Generate Report</button>
+            </div>
+
+            <div class="revenue-grid">
+                <div class="revenue-card">
+                    <h3>Total Bookings</h3>
+                    <div class="revenue-number" id="totalBookingsRev">0</div>
+                </div>
+
+                <div class="revenue-card">
+                    <h3>Unique Customers</h3>
+                    <div class="revenue-number" id="uniqueCustomersRev">0</div>
+                </div>
+
+                <div class="revenue-card">
+                    <h3>Popular Items</h3>
+                    <div id="popularItemsRev" class="popular-items">
+                        <p class="no-data">No data</p>
+                    </div>
+                </div>
+
+                <div class="revenue-card">
+                    <h3>Peak Hours</h3>
+                    <div id="peakHoursRev" class="peak-hours">
+                        <p class="no-data">No data</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Staff Performance Section (Admin Only) -->
+        <section id="staffPerformance" class="section admin-only">
+            <h2>📊 Staff Performance</h2>
+            <p class="info-text">View and analyze staff performance metrics.</p>
+            
+            <table class="staff-performance-table">
+                <thead>
+                    <tr>
+                        <th>Employee ID</th>
+                        <th>Employee Name</th>
+                        <th>Total Days Worked</th>
+                        <th>Attendance %</th>
+                        <th>Shifts Completed</th>
+                        <th>Rating</th>
+                    </tr>
+                </thead>
+                <tbody id="staffPerformanceTable">
+                    <tr>
+                        <td colspan="6" class="no-data">No staff data available</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- System Configuration Section (Admin Only) -->
+        <section id="systemConfig" class="section admin-only">
+            <h2>🔧 System Configuration</h2>
+            
+            <div class="config-grid">
+                <div class="config-card">
+                    <h3>Data Management</h3>
+                    <div class="config-buttons">
+                        <button class="btn btn-warning" onclick="backupData()">📥 Backup Data</button>
+                        <button class="btn btn-warning" onclick="exportAllData()">📤 Export All Data</button>
+                        <button class="btn btn-danger" onclick="clearAllData()">🗑️ Clear All Data</button>
+                    </div>
+                </div>
+
+                <div class="config-card">
+                    <h3>System Info</h3>
+                    <div class="system-info">
+                        <p>Version: <strong>1.0.0</strong></p>
+                        <p>Last Updated: <strong id="lastUpdated">-</strong></p>
+                        <p>Total Records: <strong id="totalRecords">0</strong></p>
+                        <p>Storage Used: <strong id="storageUsed">0 KB</strong></p>
+                    </div>
+                </div>
+
+                <div class="config-card">
+                    <h3>Database Summary</h3>
+                    <div class="db-summary">
+                        <p>Schedules: <strong id="scheduleCount">0</strong></p>
+                        <p>Attendance Records: <strong id="attendanceCount">0</strong></p>
+                        <p>Inventory Checks: <strong id="inventoryCount">0</strong></p>
+                        <p>Purchase Slots: <strong id="purchaseCount">0</strong></p>
+                        <p>User Bookings: <strong id="bookingCount">0</strong></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2026 Tamil Nadu Fair Price Shop Management System | Government of Tamil Nadu</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
